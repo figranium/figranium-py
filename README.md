@@ -159,10 +159,6 @@ client = Figranium(api_key="...", http_client=http_client)
 
 See [docs/API.md](docs/API.md) for the full method index and [examples](examples/) for complete sync and async examples.
 
-## Compatibility
-
-The initial Python release mirrors `@figranium/sdk` 0.2.0 and its Figranium API 0.14.4 compatibility target. Request payloads and responses remain dictionaries so newer servers can add fields without breaking SDK consumers.
-
 ## License
 
 Apache-2.0
