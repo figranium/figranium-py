@@ -4,6 +4,8 @@
 
 # Figranium Python SDK
 
+[![PyPI version](https://img.shields.io/pypi/v/figranium-sdk.svg)](https://pypi.org/project/figranium-sdk/)
+
 Official Python SDK for [Figranium](https://github.com/figranium/figranium), the self-hosted browser automation and web scraping platform.
 
 - Synchronous and asynchronous clients
