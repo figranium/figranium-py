@@ -4,7 +4,7 @@ import threading
 import time
 from typing import Any, Literal, Mapping, MutableMapping, Optional, cast
 
-from .types import Action, CaptchaType, HttpMethod
+from .types import Action, CaptchaType, ClickType, HttpMethod
 
 _sequence = 0
 _sequence_lock = threading.Lock()
@@ -65,12 +65,25 @@ class Actions:
     def navigate(self, url: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("navigate", base, value=url)
 
-    def click(self, selector: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
-        return _with_base("click", base, selector=selector)
+    def click(self, selector: str, click_type: ClickType = "single", *, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("click", base, selector=selector, clickType=None if click_type == "single" else click_type)
 
-    def type(
-        self, selector: str, value: str, mode: LiteralTypeMode = "replace", *, base: Optional[Mapping[str, Any]] = None
-    ) -> Action:
+    def check(self, selector: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("check", base, selector=selector)
+
+    def uncheck(self, selector: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("uncheck", base, selector=selector)
+
+    def drag_and_drop(self, selector: str, target_selector: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("drag_and_drop", base, selector=selector, targetSelector=target_selector)
+
+    def reload(self, *, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("reload", base)
+
+    def select(self, selector: str, value: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("select", base, selector=selector, value=value)
+
+    def type(self, selector: str, value: str, mode: LiteralTypeMode = "replace", *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("type", base, selector=selector, value=value, typeMode=mode)
 
     def wait(self, seconds: float, *, base: Optional[Mapping[str, Any]] = None) -> Action:
@@ -82,9 +95,7 @@ class Actions:
     def press(self, key: str, selector: Optional[str] = None, *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("press", base, key=key, selector=selector)
 
-    def javascript(
-        self, script: str, var_name: Optional[str] = None, *, base: Optional[Mapping[str, Any]] = None
-    ) -> Action:
+    def javascript(self, script: str, var_name: Optional[str] = None, *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("javascript", base, value=script, varName=var_name)
 
     def hover(self, selector: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
@@ -99,25 +110,10 @@ class Actions:
     def merge(self, var_name: str, value: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("merge", base, varName=var_name, value=value)
 
-    def get_content(
-        self,
-        selector: Optional[str] = None,
-        var_name: Optional[str] = None,
-        *,
-        base: Optional[Mapping[str, Any]] = None,
-    ) -> Action:
+    def get_content(self, selector: Optional[str] = None, var_name: Optional[str] = None, *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("get_content", base, selector=selector, varName=var_name)
 
-    def request(
-        self,
-        url: str,
-        *,
-        method: Optional[HttpMethod] = None,
-        headers: Optional[str] = None,
-        body: Optional[str] = None,
-        var_name: Optional[str] = None,
-        base: Optional[Mapping[str, Any]] = None,
-    ) -> Action:
+    def request(self, url: str, *, method: Optional[HttpMethod] = None, headers: Optional[str] = None, body: Optional[str] = None, var_name: Optional[str] = None, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("http_request", base, value=url, method=method, headers=headers, body=body, varName=var_name)
 
     def if_(self, condition: Mapping[str, Any], *, base: Optional[Mapping[str, Any]] = None) -> Action:
@@ -132,6 +128,9 @@ class Actions:
     def end(self, *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("end", base)
 
+    def do_nothing(self, *, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("do_nothing", base)
+
     def repeat(self, count: int, *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("repeat", base, value=str(count))
 
@@ -141,40 +140,13 @@ class Actions:
     def start(self, task_id: str, *, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("start", base, value=task_id)
 
-    def solve_captcha(
-        self,
-        *,
-        captcha_type: Optional[CaptchaType] = None,
-        selector: Optional[str] = None,
-        var_name: Optional[str] = None,
-        timeout: Optional[int] = None,
-        base: Optional[Mapping[str, Any]] = None,
-    ) -> Action:
-        return _with_base(
-            "solve_captcha", base, captchaType=captcha_type, selector=selector, varName=var_name, timeout=timeout
-        )
+    def solve_captcha(self, *, captcha_type: Optional[CaptchaType] = None, selector: Optional[str] = None, var_name: Optional[str] = None, timeout: Optional[int] = None, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("solve_captcha", base, captchaType=captcha_type, selector=selector, varName=var_name, timeout=timeout)
 
-    def wait_for_captcha(
-        self,
-        *,
-        captcha_type: Optional[CaptchaType] = None,
-        selector: Optional[str] = None,
-        var_name: Optional[str] = None,
-        timeout: Optional[int] = None,
-        base: Optional[Mapping[str, Any]] = None,
-    ) -> Action:
-        return _with_base(
-            "wait_captcha", base, captchaType=captcha_type, selector=selector, varName=var_name, timeout=timeout
-        )
+    def wait_for_captcha(self, *, captcha_type: Optional[CaptchaType] = None, selector: Optional[str] = None, var_name: Optional[str] = None, timeout: Optional[int] = None, base: Optional[Mapping[str, Any]] = None) -> Action:
+        return _with_base("wait_captcha", base, captchaType=captcha_type, selector=selector, varName=var_name, timeout=timeout)
 
-    def upload(
-        self,
-        *,
-        selector: Optional[str] = None,
-        cabinet_id: Optional[str] = None,
-        mark_as_uploaded: Optional[bool] = None,
-        base: Optional[Mapping[str, Any]] = None,
-    ) -> Action:
+    def upload(self, *, selector: Optional[str] = None, cabinet_id: Optional[str] = None, mark_as_uploaded: Optional[bool] = None, base: Optional[Mapping[str, Any]] = None) -> Action:
         return _with_base("upload", base, selector=selector, cabinetId=cabinet_id, markAsUploaded=mark_as_uploaded)
 
     def finalize_uploads(self, *, base: Optional[Mapping[str, Any]] = None) -> Action:
