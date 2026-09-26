@@ -13,7 +13,8 @@ VariableType = Literal["string", "number", "boolean"]
 ExtractionFormat = Literal["json", "csv"]
 HttpMethod = Literal["GET", "POST", "PUT", "PATCH", "DELETE"]
 CaptchaType = Literal["recaptcha_v2", "recaptcha_v3", "hcaptcha", "turnstile"]
-CabinetItemStatus = Literal["pending", "uploaded"]
+ClickType = Literal["single", "double", "right"]
+CabinetItemStatus = Literal["unuploaded", "uploaded"]
 AiProvider = Literal["gemini", "openai", "claude", "ollama"]
 Theme = Literal["dark", "light", "solarized-light", "solarized-dark"]
 
@@ -33,6 +34,11 @@ class StealthConfig(TypedDict, total=False):
     naturalTyping: bool
     cursorGlide: bool
     randomizeClicks: bool
+
+
+class TaskTranslation(TypedDict):
+    enabled: bool
+    targetLanguage: str
 
 
 class Schedule(TypedDict, total=False):
@@ -62,7 +68,9 @@ class Action(TypedDict, total=False):
     type: str
     disabled: bool
     selector: str
+    targetSelector: str
     value: str
+    clickType: ClickType
     typeMode: Literal["append", "replace"]
     key: str
     varName: str
@@ -93,6 +101,7 @@ class Task(TypedDict, total=False):
     humanTyping: bool
     stealth: StealthConfig
     autoSolveCaptcha: bool
+    translation: TaskTranslation
     actions: List[Action]
     variables: Dict[str, TaskVariable]
     schedule: Schedule
@@ -103,6 +112,7 @@ class Task(TypedDict, total=False):
     includeShadowDom: bool
     disableRecording: bool
     statelessExecution: bool
+    downloadCabinetId: str
     cabinetId: str
     versions: List["TaskVersion"]
     last_opened: int
@@ -167,6 +177,8 @@ class CabinetItem(TypedDict, total=False):
     status: CabinetItemStatus
     size: int
     createdAt: int
+    sourceTaskId: str
+    sourceRunId: str
 
 
 class Capture(TypedDict, total=False):
