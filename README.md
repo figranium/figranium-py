@@ -3,7 +3,7 @@
 
   <h1>Figranium Python SDK</h1>
 
-  <a href="https://pypi.org/project/figranium-sdk/"><img src="https://img.shields.io/pypi/v/figranium-sdk.svg?style=for-the-badge&label=PyPI" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/figranium-sdk/"><img src="https://img.shields.io/pypi/v/figranium-sdk.svg?style=for-the-badge&label=PyPI&logo=pypi&logoColor=white" alt="PyPI version"></a>
 
   <p><strong>Official Python SDK for Figranium, the self-hosted browser automation and web scraping platform.</strong></p>
 
