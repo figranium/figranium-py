@@ -1,12 +1,14 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/figranium/figranium-py/main/banner.png" alt="Figranium Banner">
+
+  <h1>Figranium Python SDK</h1>
+
+  <a href="https://pypi.org/project/figranium-sdk/"><img src="https://img.shields.io/pypi/v/figranium-sdk.svg?style=for-the-badge&label=PyPI" alt="PyPI version"></a>
+
+  <p><strong>Official Python SDK for Figranium, the self-hosted browser automation and web scraping platform.</strong></p>
+
+  <p><a href="https://figranium.dev/docs/sdk/python"><strong>Documentation</strong></a></p>
 </div>
-
-# Figranium Python SDK
-
-[![PyPI version](https://img.shields.io/pypi/v/figranium-sdk.svg)](https://pypi.org/project/figranium-sdk/)
-
-Official Python SDK for [Figranium](https://github.com/figranium/figranium), the self-hosted browser automation and web scraping platform.
 
 - Synchronous and asynchronous clients
 - Type hints and a `py.typed` marker
