@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 - 2026-10-03
+
+### Added
+
+- Synchronous and asynchronous v0.20 template catalog clients with listing, search, detail retrieval, and successful-import tracking.
+
+
 All notable changes to this project will be documented in this file.
 
 ## 0.1.1 - 2026-09-26
