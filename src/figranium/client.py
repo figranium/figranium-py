@@ -32,6 +32,7 @@ from ._resources import (
     TasksResource,
 )
 from .types import RequestOptions
+from .templates import TemplatesResource, AsyncTemplatesResource
 
 
 def _validate_api_key_header(value: str) -> None:
@@ -66,6 +67,7 @@ class Figranium:
         )
         self.auth = AuthResource(self._http)
         self.tasks = TasksResource(self._http)
+        self.templates = TemplatesResource(self._http)
         self.executions = ExecutionsResource(self._http)
         self.schedules = SchedulesResource(self._http)
         self.captures = CapturesResource(self._http)
@@ -128,6 +130,7 @@ class AsyncFigranium:
         # Endpoint implementations are shared; AsyncHttpClient makes each request awaitable.
         self.auth = AsyncAuthResource(self._http)  # type: ignore[arg-type]
         self.tasks = AsyncTasksResource(self._http)  # type: ignore[arg-type]
+        self.templates = AsyncTemplatesResource(self._http)
         self.executions = AsyncExecutionsResource(self._http)  # type: ignore[arg-type]
         self.schedules = AsyncSchedulesResource(self._http)  # type: ignore[arg-type]
         self.captures = AsyncCapturesResource(self._http)  # type: ignore[arg-type]
