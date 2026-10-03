@@ -28,6 +28,7 @@ from ._resources import (
 )
 from .actions import Actions, action, actions, variable
 from .client import AsyncFigranium, Figranium
+from .templates import TemplatesResource, AsyncTemplatesResource
 from .errors import FigraniumError
 from .types import (
     Action,
@@ -66,6 +67,8 @@ from .types import (
 )
 
 __all__ = [
+    "TemplatesResource",
+    "AsyncTemplatesResource",
     "Action",
     "Actions",
     "AiModels",
@@ -130,4 +133,4 @@ __all__ = [
     "variable",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
