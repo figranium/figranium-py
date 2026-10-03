@@ -15,20 +15,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat > /tmp/release-notes.md <<'RELEASE_NOTES_EOF'
-# Figranium Python SDK v0.2.0
+          # Figranium Python SDK v0.2.0
 
-This release adds access to the Templates API introduced in Figranium v0.20, in both the synchronous and asynchronous clients.
+          This release adds access to the Templates API introduced in Figranium v0.20, in both the synchronous and asynchronous clients.
 
-## What's new
+          ## What's new
 
-- **Browse templates:** `client.templates.list()` returns the complete catalog.
-- **Search and paginate:** `client.templates.search(limit=12, offset=0, sort="popular", category="all", search="...")` returns matching items and a total count. Sorting supports `popular`, `newest` and `name`.
-- **Retrieve a template:** `client.templates.get(template_id)` fetches the template's full details.
-- **Record successful imports:** After saving a template as a local task, call `client.templates.record_import(template_id)` to report the import to Figranium. The server handles per-instance download counting.
-- **Async parity:** `AsyncFigranium` exposes corresponding awaitable methods through `client.templates`.
+          - **Browse templates:** `client.templates.list()` returns the complete catalog.
+          - **Search and paginate:** `client.templates.search(limit=12, offset=0, sort="popular", category="all", search="...")` returns matching items and a total count. Sorting supports `popular`, `newest` and `name`.
+          - **Retrieve a template:** `client.templates.get(template_id)` fetches the template's full details.
+          - **Record successful imports:** After saving a template as a local task, call `client.templates.record_import(template_id)` to report the import to Figranium. The server handles per-instance download counting.
+          - **Async parity:** `AsyncFigranium` exposes corresponding awaitable methods through `client.templates`.
 
-Import tracking reports an import; it does not create or save the task itself.
+          Import tracking reports an import; it does not create or save the task itself.
 
-See [CHANGELOG.md](https://github.com/figranium/figranium-py/blob/main/CHANGELOG.md) for release history.
-RELEASE_NOTES_EOF
+          See [CHANGELOG.md](https://github.com/figranium/figranium-py/blob/main/CHANGELOG.md) for release history.
+          RELEASE_NOTES_EOF
           gh release edit v0.2.0 --notes-file /tmp/release-notes.md
