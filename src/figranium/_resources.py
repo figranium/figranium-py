@@ -15,26 +15,6 @@ class Resource:
         self._http = http
 
 
-class AuthResource(Resource):
-    def check_setup(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/auth/check-setup", options=options)
-
-    def setup(self, name: str, email: str, password: str, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request(
-            "POST", "/api/auth/setup", body={"name": name, "email": email, "password": password}, options=options
-        )
-
-    def login(self, email: str, password: str, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request(
-            "POST", "/api/auth/login", body={"email": email, "password": password}, options=options
-        )
-
-    def logout(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/auth/logout", options=options)
-
-    def me(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/auth/me", options=options)
-
 
 class TasksResource(Resource):
     def list(self, *, options: Optional[RequestOptions] = None) -> Any:
@@ -147,26 +127,8 @@ class CapturesResource(Resource):
     def delete(self, name: str, *, options: Optional[RequestOptions] = None) -> Any:
         return self._http.request("DELETE", f"/api/data/captures/{path_id(name)}", options=options)
 
-    def cookies(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/data/cookies", options=options)
-
-    def delete_cookie(
-        self,
-        name: str,
-        *,
-        domain: Optional[str] = None,
-        path: Optional[str] = None,
-        options: Optional[RequestOptions] = None,
-    ) -> Any:
-        return self._http.request(
-            "POST", "/api/data/cookies/delete", body=_defined(name=name, domain=domain, path=path), options=options
-        )
-
     def clear(self, *, options: Optional[RequestOptions] = None) -> Any:
         return self._http.request("POST", "/api/data/clear-screenshots", options=options)
-
-    def clear_cookies(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/data/clear-cookies", options=options)
 
 
 class CabinetsResource(Resource):
@@ -238,123 +200,6 @@ class CabinetsResource(Resource):
         return f"{self._http.base_url}/api/cabinets/{path_id(cabinet_id)}/items/{path_id(item_id)}/download"
 
 
-class CredentialsResource(Resource):
-    def list(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/credentials", options=options)
-
-    def create(self, input: Mapping[str, Any], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/credentials", body=dict(input), options=options)
-
-    def update(self, credential_id: str, input: Mapping[str, Any], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request(
-            "PUT", f"/api/credentials/{path_id(credential_id)}", body=dict(input), options=options
-        )
-
-    def delete(self, credential_id: str, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("DELETE", f"/api/credentials/{path_id(credential_id)}", options=options)
-
-    def baserow_databases(self, credential_id: str, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request(
-            "GET", f"/api/credentials/{path_id(credential_id)}/proxy/baserow/databases", options=options
-        )
-
-    def baserow_tables(
-        self, credential_id: str, database_id: Union[str, int], *, options: Optional[RequestOptions] = None
-    ) -> Any:
-        path = f"/api/credentials/{path_id(credential_id)}/proxy/baserow/databases/{path_id(database_id)}/tables"
-        return self._http.request("GET", path, options=options)
-
-
-class BrowserResource(Resource):
-    def open(self, input: Optional[Mapping[str, Any]] = None, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/browser/open", body=dict(input or {}), options=options)
-
-    def highlight(self, input: Mapping[str, Any], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/inspector/highlight", body=dict(input), options=options)
-
-    def stop_headful(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/headful/stop", options=options)
-
-    def headful_status(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/headful/status", options=options)
-
-    def inspect(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/headful/inspect", options=options)
-
-    def vnc_password(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/headful/vnc-password", options=options)
-
-    def selector_stream(self, *, options: Optional[RequestOptions] = None) -> Iterator[StreamEvent]:
-        return self._http.stream("/api/headful/selector_stream", options=options)
-
-
-class SettingsResource(Resource):
-    def get_api_key(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/settings/api-key", options=options)
-
-    def set_api_key(self, api_key: Optional[str] = None, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/settings/api-key", body=_defined(apiKey=api_key), options=options)
-
-    def get_user_agent(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/settings/user-agent", options=options)
-
-    def set_user_agent(self, selection: Optional[str], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/settings/user-agent", body={"selection": selection}, options=options)
-
-    def get_ai_models(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/settings/ai-models", options=options)
-
-    def set_ai_models(self, models: AiModels, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/settings/ai-models", body=models, options=options)
-
-    def get_theme(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/settings/theme", options=options)
-
-    def set_theme(self, theme: Theme, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/settings/theme", body={"theme": theme}, options=options)
-
-    def list_proxies(self, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", "/api/settings/proxies", options=options)
-
-    def add_proxy(self, proxy: Mapping[str, Any], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/settings/proxies", body=dict(proxy), options=options)
-
-    def import_proxies(self, proxies: Sequence[Mapping[str, Any]], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request(
-            "POST", "/api/settings/proxies/import", body={"proxies": list(proxies)}, options=options
-        )
-
-    def update_proxy(self, proxy_id: str, proxy: Mapping[str, Any], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request(
-            "PUT", f"/api/settings/proxies/{path_id(proxy_id)}", body=dict(proxy), options=options
-        )
-
-    def delete_proxy(self, proxy_id: str, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("DELETE", f"/api/settings/proxies/{path_id(proxy_id)}", options=options)
-
-    def delete_proxies(self, ids: Sequence[str], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("DELETE", "/api/settings/proxies", body={"ids": list(ids)}, options=options)
-
-    def set_default_proxy(self, proxy_id: Optional[str], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/settings/proxies/default", body={"id": proxy_id}, options=options)
-
-    def set_proxy_rotation(self, input: Mapping[str, Any], *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("POST", "/api/settings/proxies/rotation", body=dict(input), options=options)
-
-    def get_provider_keys(self, provider: AiProvider, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request("GET", f"/api/settings/{_provider_path(provider)}", options=options)
-
-    def set_provider_keys(
-        self, provider: AiProvider, keys: Sequence[str], *, options: Optional[RequestOptions] = None
-    ) -> Any:
-        response_key = "openAiApiKeys" if provider == "openai" else f"{provider}ApiKeys"
-        return self._http.request(
-            "POST", f"/api/settings/{_provider_path(provider)}", body={response_key: list(keys)}, options=options
-        )
-
-
-def _provider_path(provider: AiProvider) -> str:
-    return "openai-api-key" if provider == "openai" else f"{provider}-api-key"
 
 
 class ExecutionResource(Resource):
