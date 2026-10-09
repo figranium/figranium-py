@@ -4,23 +4,16 @@ from typing import AsyncIterator, Optional, cast
 
 from ._http import AsyncHttpClient
 from ._resources import (
-    AuthResource,
-    BrowserResource,
     CabinetsResource,
     CapturesResource,
-    CredentialsResource,
     ExecutionResource,
     ExecutionsResource,
     HealthResource,
     SchedulesResource,
-    SettingsResource,
     TasksResource,
 )
 from .types import RequestOptions, StreamEvent
 
-
-class AsyncAuthResource(AuthResource):
-    pass
 
 
 class AsyncTasksResource(TasksResource):
@@ -45,18 +38,6 @@ class AsyncCabinetsResource(CabinetsResource):
     pass
 
 
-class AsyncCredentialsResource(CredentialsResource):
-    pass
-
-
-class AsyncBrowserResource(BrowserResource):
-    def selector_stream(self, *, options: Optional[RequestOptions] = None) -> AsyncIterator[StreamEvent]:  # type: ignore[override]
-        http = cast(AsyncHttpClient, self._http)
-        return http.stream("/api/headful/selector_stream", options=options)
-
-
-class AsyncSettingsResource(SettingsResource):
-    pass
 
 
 class AsyncExecutionResource(ExecutionResource):

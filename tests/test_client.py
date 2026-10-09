@@ -124,16 +124,12 @@ def test_routes_representative_resource_calls() -> None:
         client.executions.stop("run-1")
         client.schedules.delete("task 1")
         client.captures.delete("recording.webm")
-        client.credentials.baserow_tables("cred/1", 42)
-        client.browser.inspect()
 
     assert [(request.method, str(request.url)) for request in requests] == [
         ("PATCH", "http://localhost:11345/api/tasks/task%201"),
         ("POST", "http://localhost:11345/api/executions/stop"),
         ("DELETE", "http://localhost:11345/api/schedules/task%201"),
         ("DELETE", "http://localhost:11345/api/data/captures/recording.webm"),
-        ("GET", "http://localhost:11345/api/credentials/cred%2F1/proxy/baserow/databases/42/tables"),
-        ("POST", "http://localhost:11345/api/headful/inspect"),
     ]
 
 

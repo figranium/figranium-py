@@ -5,30 +5,22 @@ from typing import Any, Mapping, Optional
 import httpx
 
 from ._async_resources import (
-    AsyncAuthResource,
-    AsyncBrowserResource,
     AsyncCabinetsResource,
     AsyncCapturesResource,
-    AsyncCredentialsResource,
     AsyncExecutionResource,
     AsyncExecutionsResource,
     AsyncHealthResource,
     AsyncSchedulesResource,
-    AsyncSettingsResource,
     AsyncTasksResource,
 )
 from ._http import AsyncHttpClient, HttpClient
 from ._resources import (
-    AuthResource,
-    BrowserResource,
     CabinetsResource,
     CapturesResource,
-    CredentialsResource,
     ExecutionResource,
     ExecutionsResource,
     HealthResource,
     SchedulesResource,
-    SettingsResource,
     TasksResource,
 )
 from .types import RequestOptions
@@ -65,16 +57,12 @@ class Figranium:
             api_key_header=api_key_header,
             client=http_client,
         )
-        self.auth = AuthResource(self._http)
         self.tasks = TasksResource(self._http)
         self.templates = TemplatesResource(self._http)
         self.executions = ExecutionsResource(self._http)
         self.schedules = SchedulesResource(self._http)
         self.captures = CapturesResource(self._http)
         self.cabinets = CabinetsResource(self._http)
-        self.credentials = CredentialsResource(self._http)
-        self.browser = BrowserResource(self._http)
-        self.settings = SettingsResource(self._http)
         self.execution = ExecutionResource(self._http)
         self.health = HealthResource(self._http)
 
@@ -128,16 +116,12 @@ class AsyncFigranium:
             client=http_client,
         )
         # Endpoint implementations are shared; AsyncHttpClient makes each request awaitable.
-        self.auth = AsyncAuthResource(self._http)  # type: ignore[arg-type]
         self.tasks = AsyncTasksResource(self._http)  # type: ignore[arg-type]
         self.templates = AsyncTemplatesResource(self._http)
         self.executions = AsyncExecutionsResource(self._http)  # type: ignore[arg-type]
         self.schedules = AsyncSchedulesResource(self._http)  # type: ignore[arg-type]
         self.captures = AsyncCapturesResource(self._http)  # type: ignore[arg-type]
         self.cabinets = AsyncCabinetsResource(self._http)  # type: ignore[arg-type]
-        self.credentials = AsyncCredentialsResource(self._http)  # type: ignore[arg-type]
-        self.browser = AsyncBrowserResource(self._http)  # type: ignore[arg-type]
-        self.settings = AsyncSettingsResource(self._http)  # type: ignore[arg-type]
         self.execution = AsyncExecutionResource(self._http)  # type: ignore[arg-type]
         self.health = AsyncHealthResource(self._http)  # type: ignore[arg-type]
 

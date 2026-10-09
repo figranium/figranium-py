@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 - 2026-10-09
+
+- Removed authentication, credentials, settings, and interactive browser resources from synchronous and asynchronous SDK clients.
+- Removed legacy cookie administration from captures.
+- Preserved automation, execution, schedules, templates, cabinets, and health APIs.
+
+
 All notable changes to this project will be documented in this file.
 
 ## 0.2.0 - 2026-10-03
