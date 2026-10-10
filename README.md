@@ -138,15 +138,11 @@ except FigraniumError as error:
 
 Every request accepts an `options` keyword containing `headers` and `timeout`. The client-wide timeout defaults to 30 seconds.
 
-## Session-only administration
+## Figranium v0.21 compatibility
 
-Figranium's `/api/settings/*` endpoints require an authenticated session rather than an API key. Set `session=True`, log in through `client.auth.login(...)`, and reuse the same client; `httpx` maintains its cookie jar automatically.
+Tasks may specify `cookieStateId` to reuse an existing named browser state. Use `None` to request a fresh state, or omit the field to use the instance default. The legacy `statelessExecution` field is deprecated. Baserow output configuration supports optional `databaseId` and `dedicated` fields.
 
-```python
-with Figranium(base_url="https://figranium.example", session=True) as admin:
-    admin.auth.login("admin@example.com", "password")
-    models = admin.settings.get_ai_models()
-```
+The SDK is for automation operations. Managing API keys, 1Password credentials, cookie states, connections, settings, imports/exports, and Cloud sign-in requires the Figranium workspace UI rather than a scoped API key.
 
 ## Custom HTTP clients
 
