@@ -138,7 +138,7 @@ except FigraniumError as error:
 
 Every request accepts an `options` keyword containing `headers` and `timeout`. The client-wide timeout defaults to 30 seconds.
 
-## Modern Compatibilty
+## Modern version compatibilty
 
 Tasks may specify `cookieStateId` to reuse an existing named browser state. Use `None` to request a fresh state, or omit the field to use the instance default. The legacy `statelessExecution` field is deprecated. Baserow output configuration supports optional `databaseId` and `dedicated` fields.
 
