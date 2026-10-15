@@ -59,7 +59,9 @@ class Schedule(TypedDict, total=False):
 class TaskOutput(TypedDict, total=False):
     provider: Literal["baserow"]
     credentialId: str
+    databaseId: str
     tableId: str
+    dedicated: bool
     onError: Literal["ignore", "fail"]
 
 
@@ -111,7 +113,8 @@ class Task(TypedDict, total=False):
     includeHtml: bool
     includeShadowDom: bool
     disableRecording: bool
-    statelessExecution: bool
+    cookieStateId: Optional[str]
+    statelessExecution: bool  # Deprecated: use cookieStateId=None for a fresh state.
     downloadCabinetId: str
     cabinetId: str
     versions: List["TaskVersion"]

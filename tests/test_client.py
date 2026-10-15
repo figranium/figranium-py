@@ -165,3 +165,20 @@ def test_validates_configuration_and_variables() -> None:
         Figranium(api_key="secret", session=True)
     with pytest.raises(ValueError, match="must not be empty"):
         variable("   ")
+
+
+def test_v021_task_cookie_state_and_baserow_output() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return response(request, {"id": "task_1"})
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        client = Figranium(api_key="secret", http_client=http_client)
+        client.tasks.save({"name": "Task", "url": "https://example.com", "mode": "agent", "cookieStateId": "state_login", "output": {"provider": "baserow", "credentialId": "cred_1", "databaseId": "12", "tableId": "34", "dedicated": True, "onError": "fail"}})
+        client.tasks.update("task_1", {"cookieStateId": None})
+
+    assert json.loads(requests[0].content)["cookieStateId"] == "state_login"
+    assert json.loads(requests[0].content)["output"]["dedicated"] is True
+    assert json.loads(requests[1].content)["cookieStateId"] is None
