@@ -16,6 +16,38 @@ class Resource:
 
 
 
+class CookieStatesResource(Resource):
+    """Named browser cookie/storage states (workspace session required)."""
+
+    def list(self, *, options: Optional[RequestOptions] = None) -> Any:
+        return self._http.request("GET", "/api/cookie-states", options=options)
+
+    def get(self, state_id: str, *, options: Optional[RequestOptions] = None) -> Any:
+        return self._http.request("GET", f"/api/cookie-states/{path_id(state_id)}", options=options)
+
+    def create(
+        self, name: str, state: Mapping[str, Any], *, options: Optional[RequestOptions] = None
+    ) -> Any:
+        return self._http.request(
+            "POST", "/api/cookie-states", body={"name": name, "state": dict(state)}, options=options
+        )
+
+    def rename(self, state_id: str, name: str, *, options: Optional[RequestOptions] = None) -> Any:
+        return self._http.request(
+            "PATCH", f"/api/cookie-states/{path_id(state_id)}", body={"name": name}, options=options
+        )
+
+    def update(
+        self, state_id: str, state: Mapping[str, Any], *, options: Optional[RequestOptions] = None
+    ) -> Any:
+        return self._http.request(
+            "PATCH", f"/api/cookie-states/{path_id(state_id)}", body={"state": dict(state)}, options=options
+        )
+
+    def delete(self, state_id: str, *, options: Optional[RequestOptions] = None) -> Any:
+        return self._http.request("DELETE", f"/api/cookie-states/{path_id(state_id)}", options=options)
+
+
 class TasksResource(Resource):
     def list(self, *, options: Optional[RequestOptions] = None) -> Any:
         return self._http.request("GET", "/api/tasks", options=options)
