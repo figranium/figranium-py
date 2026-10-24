@@ -138,11 +138,25 @@ except FigraniumError as error:
 
 Every request accepts an `options` keyword containing `headers` and `timeout`. The client-wide timeout defaults to 30 seconds.
 
-## Modern version compatibilty
+## Modern version compatibility
 
 Tasks may specify `cookieStateId` to reuse an existing named browser state. Use `None` to request a fresh state, or omit the field to use the instance default. The legacy `statelessExecution` field is deprecated. Baserow output configuration supports optional `databaseId` and `dedicated` fields.
 
-The SDK is for automation operations. Managing API keys, 1Password credentials, cookie states, connections, settings, imports/exports, and Cloud sign-in requires the Figranium workspace UI rather than a scoped API key.
+Named cookie states are also accessible with a workspace session (not an API key). Pass an authenticated `httpx.Client` with the session cookie and enable `session=True`:
+
+```python
+import httpx
+from figranium import Figranium
+
+with httpx.Client(cookies={"<cookie-name>": "<workspace-session-cookie>"}) as http_client:
+    with Figranium(session=True, http_client=http_client) as client:
+        states = client.cookie_states.list()
+        client.cookie_states.create("login", {"cookies": [], "origins": []})
+```
+
+The SDK does not perform interactive login or obtain session cookies. For session mutations, it supplies the CSRF hint unless Origin or Referer is explicitly set. The async client exposes the same `cookie_states` methods.
+
+Managing API keys, 1Password credentials, connections, Baserow credential administration, settings, imports/exports, and Cloud sign-in still belongs in the Figranium workspace UI.
 
 ## Custom HTTP clients
 

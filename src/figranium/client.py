@@ -6,6 +6,7 @@ import httpx
 
 from ._async_resources import (
     AsyncCabinetsResource,
+    AsyncCookieStatesResource,
     AsyncCapturesResource,
     AsyncExecutionResource,
     AsyncExecutionsResource,
@@ -16,6 +17,7 @@ from ._async_resources import (
 from ._http import AsyncHttpClient, HttpClient
 from ._resources import (
     CabinetsResource,
+    CookieStatesResource,
     CapturesResource,
     ExecutionResource,
     ExecutionsResource,
@@ -55,8 +57,10 @@ class Figranium:
             headers=headers,
             api_key=api_key,
             api_key_header=api_key_header,
+            session=session,
             client=http_client,
         )
+        self.cookie_states = CookieStatesResource(self._http)
         self.tasks = TasksResource(self._http)
         self.templates = TemplatesResource(self._http)
         self.executions = ExecutionsResource(self._http)
@@ -113,9 +117,11 @@ class AsyncFigranium:
             headers=headers,
             api_key=api_key,
             api_key_header=api_key_header,
+            session=session,
             client=http_client,
         )
         # Endpoint implementations are shared; AsyncHttpClient makes each request awaitable.
+        self.cookie_states = AsyncCookieStatesResource(self._http)  # type: ignore[arg-type]
         self.tasks = AsyncTasksResource(self._http)  # type: ignore[arg-type]
         self.templates = AsyncTemplatesResource(self._http)
         self.executions = AsyncExecutionsResource(self._http)  # type: ignore[arg-type]

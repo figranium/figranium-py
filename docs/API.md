@@ -46,15 +46,12 @@ Classified execution outcomes (`success`, `error`, `stopped`, `crashed`, and `an
 - `schedules.describe(task_id, schedule)`
 - `schedules.overall_status()`
 
-## Captures and cookies
+## Captures
 
 - `captures.list(run_id=None)`
 - `captures.screenshots()`
 - `captures.delete(name)`
-- `captures.cookies()`
-- `captures.delete_cookie(name, domain=None, path=None)`
 - `captures.clear()`
-- `captures.clear_cookies()`
 
 ## Cabinets
 
@@ -70,46 +67,21 @@ Classified execution outcomes (`success`, `error`, `stopped`, `crashed`, and `an
 - `cabinets.unzip_item(cabinet_id, item_id)`
 - `cabinets.get_item_download_url(cabinet_id, item_id)`
 
-## Credentials
+## Named cookie states (workspace session only)
 
-- `credentials.list()`
-- `credentials.create(input)`
-- `credentials.update(credential_id, input)`
-- `credentials.delete(credential_id)`
-- `credentials.baserow_databases(credential_id)`
-- `credentials.baserow_tables(credential_id, database_id)`
+- `cookie_states.list()`
+- `cookie_states.get(state_id)`
+- `cookie_states.create(name, state)`
+- `cookie_states.rename(state_id, name)`
+- `cookie_states.update(state_id, state)`
+- `cookie_states.delete(state_id)`
 
-## Browser and headful sessions
+Use `Figranium(session=True, http_client=...)` with an authenticated `httpx.Client` containing the workspace session cookie, or `AsyncFigranium` with an authenticated `httpx.AsyncClient`. The SDK does not log in or obtain a session cookie. It adds the server's CSRF hint to session-authenticated mutations without an explicit Origin/Referer.
 
-- `browser.open(input=None)`
-- `browser.highlight(input)`
-- `browser.stop_headful()`
-- `browser.headful_status()`
-- `browser.inspect()`
-- `browser.vnc_password()`
-- `browser.selector_stream()`
+Scoped API keys are intended for permitted automation operations; they cannot administer named cookie states, 1Password credentials, connections, Baserow credentials, import/export, or Cloud authentication. Manage those in the workspace UI.
 
-## Settings (session required)
+## Health
 
-- `settings.get_api_key()` / `settings.set_api_key(api_key=None)`
-- `settings.get_user_agent()` / `settings.set_user_agent(selection)`
-- `settings.get_ai_models()` / `settings.set_ai_models(models)`
-- `settings.get_provider_keys(provider)` / `settings.set_provider_keys(provider, keys)`
-- `settings.get_theme()` / `settings.set_theme(theme)`
-- `settings.list_proxies()`
-- `settings.add_proxy(proxy)` / `settings.import_proxies(proxies)`
-- `settings.update_proxy(proxy_id, proxy)`
-- `settings.delete_proxy(proxy_id)` / `settings.delete_proxies(ids)`
-- `settings.set_default_proxy(proxy_id)`
-- `settings.set_proxy_rotation(input)`
-
-## Authentication and health
-
-- `auth.check_setup()`
-- `auth.setup(name, email, password)`
-- `auth.login(email, password)`
-- `auth.logout()`
-- `auth.me()`
 - `health.check()`
 
 ## Helpers

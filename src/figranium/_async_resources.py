@@ -5,6 +5,7 @@ from typing import AsyncIterator, Optional, cast
 from ._http import AsyncHttpClient
 from ._resources import (
     CabinetsResource,
+    CookieStatesResource,
     CapturesResource,
     ExecutionResource,
     ExecutionsResource,
@@ -14,6 +15,10 @@ from ._resources import (
 )
 from .types import RequestOptions, StreamEvent
 
+
+
+class AsyncCookieStatesResource(CookieStatesResource):
+    pass
 
 
 class AsyncTasksResource(TasksResource):
