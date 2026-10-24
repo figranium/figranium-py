@@ -148,7 +148,7 @@ Named cookie states are also accessible with a workspace session (not an API key
 import httpx
 from figranium import Figranium
 
-with httpx.Client(cookies={"session": "<workspace-session-cookie>"}) as http_client:
+with httpx.Client(cookies={"<cookie-name>": "<workspace-session-cookie>"}) as http_client:
     with Figranium(session=True, http_client=http_client) as client:
         states = client.cookie_states.list()
         client.cookie_states.create("login", {"cookies": [], "origins": []})
