@@ -69,6 +69,22 @@ def _request_parts(options: Optional[RequestOptions]) -> tuple[Optional[Mapping[
     return value.get("headers"), value.get("timeout")
 
 
+def _session_headers(
+    method: str,
+    base_headers: httpx.Headers,
+    request_headers: Optional[Mapping[str, str]],
+    session: bool,
+) -> Optional[Mapping[str, str]]:
+    """Supply the server's CSRF hint for session mutations without Origin/Referer."""
+    if not session or method.upper() in {"GET", "HEAD", "OPTIONS"}:
+        return request_headers
+    merged = httpx.Headers(base_headers)
+    merged.update(request_headers or {})
+    if not any(key in merged for key in ("origin", "referer", "x-requested-with")):
+        merged["x-requested-with"] = "XMLHttpRequest"
+    return merged
+
+
 class HttpClient:
     def __init__(
         self,
@@ -78,6 +94,7 @@ class HttpClient:
         headers: Optional[Mapping[str, str]],
         api_key: Optional[str],
         api_key_header: str,
+        session: bool,
         client: Optional[httpx.Client],
     ) -> None:
         self.base_url = normalize_base_url(base_url)
@@ -88,6 +105,7 @@ class HttpClient:
             else:
                 base_headers["authorization"] = f"Bearer {api_key}"
         self.timeout = timeout
+        self.session = session
         self._owns_client = client is None
         self.client = client or httpx.Client(headers=base_headers)
         if client is not None:
@@ -107,7 +125,7 @@ class HttpClient:
             response = self.client.request(
                 method,
                 _url(self.base_url, path, query),
-                headers=headers,
+                headers=_session_headers(method, self.client.headers, headers, self.session),
                 timeout=self.timeout if timeout is None else timeout,
                 **({"json": body} if body is not None else {}),
             )
@@ -172,6 +190,7 @@ class AsyncHttpClient:
         headers: Optional[Mapping[str, str]],
         api_key: Optional[str],
         api_key_header: str,
+        session: bool,
         client: Optional[httpx.AsyncClient],
     ) -> None:
         self.base_url = normalize_base_url(base_url)
@@ -182,6 +201,7 @@ class AsyncHttpClient:
             else:
                 base_headers["authorization"] = f"Bearer {api_key}"
         self.timeout = timeout
+        self.session = session
         self._owns_client = client is None
         self.client = client or httpx.AsyncClient(headers=base_headers)
         if client is not None:
@@ -201,7 +221,7 @@ class AsyncHttpClient:
             response = await self.client.request(
                 method,
                 _url(self.base_url, path, query),
-                headers=headers,
+                headers=_session_headers(method, self.client.headers, headers, self.session),
                 timeout=self.timeout if timeout is None else timeout,
                 **({"json": body} if body is not None else {}),
             )
