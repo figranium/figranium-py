@@ -182,3 +182,51 @@ def test_v021_task_cookie_state_and_baserow_output() -> None:
     assert json.loads(requests[0].content)["cookieStateId"] == "state_login"
     assert json.loads(requests[0].content)["output"]["dedicated"] is True
     assert json.loads(requests[1].content)["cookieStateId"] is None
+
+
+def test_v021_cookie_states_and_session_csrf_headers() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return response(request, {"ok": True})
+
+    state = {"cookies": [], "origins": []}
+    with httpx.Client(transport=httpx.MockTransport(handler), cookies={"session": "example"}) as http_client:
+        client = Figranium(session=True, http_client=http_client)
+        client.cookie_states.list()
+        client.cookie_states.get("state/1")
+        client.cookie_states.create("login", state)
+        client.cookie_states.rename("state/1", "renamed")
+        client.cookie_states.update("state/1", state)
+        client.cookie_states.delete("state/1")
+
+    assert [(r.method, r.url.raw_path) for r in requests] == [
+        ("GET", b"/api/cookie-states"),
+        ("GET", b"/api/cookie-states/state%2F1"),
+        ("POST", b"/api/cookie-states"),
+        ("PATCH", b"/api/cookie-states/state%2F1"),
+        ("PATCH", b"/api/cookie-states/state%2F1"),
+        ("DELETE", b"/api/cookie-states/state%2F1"),
+    ]
+    assert "x-requested-with" not in requests[0].headers
+    assert all(r.headers.get("x-requested-with") == "XMLHttpRequest" for r in requests[2:])
+    assert all("session=example" in r.headers.get("cookie", "") for r in requests)
+    assert json.loads(requests[2].content) == {"name": "login", "state": state}
+    assert json.loads(requests[4].content) == {"state": state}
+
+
+def test_session_csrf_respects_origin_and_api_key_mode() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return response(request, {"ok": True})
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        Figranium(session=True, headers={"Origin": "https://example.test"}, http_client=http_client).tasks.update("1", {"name": "x"})
+        Figranium(api_key="key", http_client=http_client).tasks.update("1", {"name": "x"})
+
+    assert requests[0].headers["origin"] == "https://example.test"
+    assert "x-requested-with" not in requests[0].headers
+    assert "x-requested-with" not in requests[1].headers
