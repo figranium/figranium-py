@@ -2,7 +2,7 @@
 
 from typing import AsyncIterator, Optional, cast
 
-from ._http import AsyncHttpClient
+from ._http import AsyncHttpClient, path_id
 from ._resources import (
     CabinetsResource,
     CookieStatesResource,
@@ -26,9 +26,10 @@ class AsyncTasksResource(TasksResource):
 
 
 class AsyncExecutionsResource(ExecutionsResource):
-    def stream(self, *, options: Optional[RequestOptions] = None) -> AsyncIterator[StreamEvent]:  # type: ignore[override]
+    def stream(self, run_id: str, *, options: Optional[RequestOptions] = None) -> AsyncIterator[StreamEvent]:  # type: ignore[override]
+        """Stream events for a run. Requires a workspace session, not an API key."""
         http = cast(AsyncHttpClient, self._http)
-        return http.stream("/api/executions/stream", options=options)
+        return http.stream(f"/api/executions/stream?runId={path_id(run_id)}", options=options)
 
 
 class AsyncSchedulesResource(SchedulesResource):
