@@ -1,6 +1,6 @@
 """Asynchronous resource variants sharing the sync resources' endpoint definitions."""
 
-from typing import AsyncIterator, Optional, cast
+from typing import Any, AsyncIterator, Optional, cast
 
 from ._http import AsyncHttpClient, path_id
 from ._resources import (
@@ -22,7 +22,7 @@ class AsyncCookieStatesResource(CookieStatesResource):
 
 
 class AsyncTasksResource(TasksResource):
-    async def list_summaries(self, *, options: Optional[RequestOptions] = None) -> object:  # type: ignore[override]
+    async def list_summaries(self, *, options: Optional[RequestOptions] = None) -> Any:  # type: ignore[override]
         """Use the session-compatible Task list or the API-key summaries route."""
         http = cast(AsyncHttpClient, self._http)
         if http.session:
