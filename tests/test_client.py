@@ -33,6 +33,33 @@ def test_normalizes_urls_and_sends_bearer_authentication() -> None:
     assert requests[0].headers["authorization"] == "Bearer secret"
 
 
+
+def test_task_summaries_choose_session_or_api_key_route() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/api/tasks":
+            return response(request, [
+                {"id": 123, "name": "Example", "description": "A task"},
+                {"id": "456", "name": "", "description": ""},
+            ])
+        return response(request, {"tasks": [{"id": "api-1", "name": "API task"}]})
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        session = Figranium(session=True, http_client=http_client)
+        assert session.tasks.list_summaries() == {"tasks": [
+            {"id": "123", "name": "Example", "description": "A task"},
+            {"id": "456", "name": "456"},
+        ]}
+        api_key = Figranium(api_key="secret", http_client=http_client)
+        assert api_key.tasks.list_summaries() == {"tasks": [{"id": "api-1", "name": "API task"}]}
+        assert not hasattr(api_key.tasks, "generate_selector")
+        assert not hasattr(api_key.tasks, "generate_script")
+
+    assert [request.url.path for request in requests] == ["/api/tasks", "/api/tasks/list"]
+
+
 def test_execution_routes_match_auth_mode_and_return_full_results() -> None:
     requests: list[httpx.Request] = []
 
