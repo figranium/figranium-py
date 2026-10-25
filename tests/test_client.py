@@ -33,6 +33,37 @@ def test_normalizes_urls_and_sends_bearer_authentication() -> None:
     assert requests[0].headers["authorization"] == "Bearer secret"
 
 
+def test_execution_routes_match_auth_mode_and_return_full_results() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path.endswith("/result"):
+            return response(request, {"result": {"rows": [{"id": 7}]}})
+        return response(request, {"executions": [{"id": "run-1", "status": 200}]})
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        session_client = Figranium(session=True, http_client=http_client)
+        assert session_client.executions.list()["executions"][0]["status"] == 200
+        session_client.executions.list(api_key_route=True)
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        api_client = Figranium(api_key="secret", http_client=http_client)
+        api_client.executions.list()
+        api_client.executions.list(api_key_route=False)
+        full = api_client.executions.get_full_result("run/a ?")
+
+    assert [r.url.raw_path for r in requests] == [
+        b"/api/executions",
+        b"/api/executions/list",
+        b"/api/executions/list",
+        b"/api/executions",
+        b"/api/executions/run%2Fa%20%3F/result",
+    ]
+    assert full == {"result": {"rows": [{"id": 7}]}}
+    assert requests[-1].headers["authorization"] == "Bearer secret"
+
+
 def test_supports_x_api_key_authentication() -> None:
     requests: list[httpx.Request] = []
 
