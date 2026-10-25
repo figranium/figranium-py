@@ -109,12 +109,18 @@ class TasksResource(Resource):
 
 
 class ExecutionsResource(Resource):
-    def list(self, *, api_key_route: bool = True, options: Optional[RequestOptions] = None) -> Any:
-        path = "/api/executions/list" if api_key_route else "/api/executions"
+    def list(self, *, api_key_route: Optional[bool] = None, options: Optional[RequestOptions] = None) -> Any:
+        """Choose the session route for session clients and the scoped route for API keys."""
+        use_api_key_route = not self._http.session if api_key_route is None else api_key_route
+        path = "/api/executions/list" if use_api_key_route else "/api/executions"
         return self._http.request("GET", path, options=options)
 
     def get(self, execution_id: str, *, options: Optional[RequestOptions] = None) -> Any:
         return self._http.request("GET", f"/api/executions/{path_id(execution_id)}", options=options)
+
+    def get_full_result(self, execution_id: str, *, options: Optional[RequestOptions] = None) -> Any:
+        """Fetch the retained full result; API keys require results:read and Task access."""
+        return self._http.request("GET", f"/api/executions/{path_id(execution_id)}/result", options=options)
 
     def delete(self, execution_id: str, *, options: Optional[RequestOptions] = None) -> Any:
         return self._http.request("DELETE", f"/api/executions/{path_id(execution_id)}", options=options)

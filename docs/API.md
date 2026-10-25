@@ -30,8 +30,9 @@ Classified execution outcomes (`success`, `error`, `stopped`, `crashed`, and `an
 
 ## Executions
 
-- `executions.list(api_key_route=True)`
+- `executions.list(api_key_route=None)` — automatically selects the workspace-session route or the API-key route; pass `True` or `False` to override
 - `executions.get(execution_id)`
+- `executions.get_full_result(execution_id)` — returns `{ "result": ... }` when a complete result was retained; API keys require `results:read` and access to the execution's Task
 - `executions.delete(execution_id)`
 - `executions.clear()`
 - `executions.stop(run_id)`
