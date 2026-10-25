@@ -104,19 +104,21 @@ async with AsyncFigranium(api_key="...") as client:
 
 ## Stream executions
 
+The `/api/executions/stream` endpoint requires a workspace session and a `runId` query parameter. An API key alone cannot access it; supply authenticated session cookies through your `httpx` client. Streams are scoped to one run.
+
 Synchronous streams are ordinary iterators:
 
 ```python
-with Figranium(api_key="...") as client:
-    for event in client.executions.stream():
+with Figranium(session=True) as client:
+    for event in client.executions.stream("run-id"):
         print(event.get("event"), event["data"])
 ```
 
 Asynchronous streams are async iterators:
 
 ```python
-async with AsyncFigranium(api_key="...") as client:
-    async for event in client.executions.stream():
+async with AsyncFigranium(session=True) as client:
+    async for event in client.executions.stream("run-id"):
         print(event.get("event"), event["data"])
 ```
 

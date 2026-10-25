@@ -35,7 +35,7 @@ Classified execution outcomes (`success`, `error`, `stopped`, `crashed`, and `an
 - `executions.delete(execution_id)`
 - `executions.clear()`
 - `executions.stop(run_id)`
-- `executions.stream()`
+- `executions.stream(run_id)` — stream events for a run via `/api/executions/stream?runId=...`; requires workspace-session authentication (not an API key). Available on both sync and async clients.
 
 ## Schedules
 

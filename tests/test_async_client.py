@@ -22,11 +22,13 @@ async def _exercise_async_client() -> None:
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
         client = AsyncFigranium(api_key="secret", http_client=http_client)
         result = await client.run_task("task/a", {"variables": {"query": "books"}})
-        events = [event async for event in client.executions.stream()]
+        events = [event async for event in client.executions.stream("async/run? 1")]
 
     assert result == {"success": True, "data": [1]}
     assert requests[0].url.raw_path == b"/tasks/task%2Fa/api"
     assert json.loads(requests[0].content) == {"variables": {"query": "books"}}
+    assert requests[1].url.path == "/api/executions/stream"
+    assert requests[1].url.params["runId"] == "async/run? 1"
     assert events == [{"event": "update", "data": {"status": "done"}, "raw": '{"status":"done"}'}]
 
 

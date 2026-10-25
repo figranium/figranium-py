@@ -125,8 +125,9 @@ class ExecutionsResource(Resource):
     def stop(self, run_id: str, *, options: Optional[RequestOptions] = None) -> Any:
         return self._http.request("POST", "/api/executions/stop", body={"runId": run_id}, options=options)
 
-    def stream(self, *, options: Optional[RequestOptions] = None) -> Iterator[StreamEvent]:
-        return self._http.stream("/api/executions/stream", options=options)
+    def stream(self, run_id: str, *, options: Optional[RequestOptions] = None) -> Iterator[StreamEvent]:
+        """Stream events for a run. Requires a workspace session, not an API key."""
+        return self._http.stream(f"/api/executions/stream?runId={path_id(run_id)}", options=options)
 
 
 class SchedulesResource(Resource):

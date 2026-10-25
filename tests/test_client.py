@@ -98,12 +98,17 @@ def test_normalizes_timeout_errors() -> None:
 
 def test_parses_json_sse_multiline_text_and_metadata() -> None:
     body = 'id: one\nevent: execution\ndata: {"status":"running"}\n\ndata: hello\ndata: world\nretry: 2500\n\n'
+    requests: list[httpx.Request] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
         return httpx.Response(200, text=body, headers={"content-type": "text/event-stream"}, request=request)
 
     with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
-        events = list(Figranium(api_key="secret", http_client=http_client).executions.stream())
+        events = list(Figranium(session=True, http_client=http_client).executions.stream("run/1? x"))
+
+    assert requests[0].url.path == "/api/executions/stream"
+    assert requests[0].url.params["runId"] == "run/1? x"
 
     assert events == [
         {"data": {"status": "running"}, "raw": '{"status":"running"}', "event": "execution", "id": "one"},
