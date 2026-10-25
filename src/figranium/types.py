@@ -154,7 +154,7 @@ class Execution(TypedDict, total=False):
     timestamp: int
     method: str
     path: str
-    status: str
+    status: Union[int, str]
     outcome: TaskOutcome
     durationMs: int
     source: str
