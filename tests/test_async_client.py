@@ -32,6 +32,36 @@ async def _exercise_async_client() -> None:
     assert events == [{"event": "update", "data": {"status": "done"}, "raw": '{"status":"done"}'}]
 
 
+def test_async_execution_list_auth_mode_and_full_result() -> None:
+    asyncio.run(_exercise_async_execution_routes())
+
+
+async def _exercise_async_execution_routes() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path.endswith("/result"):
+            return httpx.Response(200, json={"result": {"value": 42}}, request=request)
+        return httpx.Response(200, json={"executions": []}, request=request)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
+        session = AsyncFigranium(session=True, http_client=http_client)
+        await session.executions.list()
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
+        api_key = AsyncFigranium(api_key="secret", http_client=http_client)
+        await api_key.executions.list()
+        full = await api_key.executions.get_full_result("run/1")
+
+    assert [r.url.raw_path for r in requests] == [
+        b"/api/executions",
+        b"/api/executions/list",
+        b"/api/executions/run%2F1/result",
+    ]
+    assert full == {"result": {"value": 42}}
+
+
 def test_async_cookie_states_session_csrf() -> None:
     asyncio.run(_exercise_async_cookie_states())
 
