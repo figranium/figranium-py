@@ -97,7 +97,7 @@ def test_normalizes_timeout_errors() -> None:
 
 
 def test_parses_json_sse_multiline_text_and_metadata() -> None:
-    body = 'id: one\\nevent: execution\\ndata: {"status":"running"}\\n\\ndata: hello\\ndata: world\\nretry: 2500\\n\\n'
+    body = 'id: one\nevent: execution\ndata: {"status":"running"}\n\ndata: hello\ndata: world\nretry: 2500\n\n'
     requests: list[httpx.Request] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
