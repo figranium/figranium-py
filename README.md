@@ -47,6 +47,8 @@ print(result.get("outcome"))  # success | error | stopped | crashed | anti_bot
 
 `base_url` defaults to `http://localhost:11345`. API keys use `Authorization: Bearer` by default. Set `api_key_header="x-api-key"` if your deployment expects that header.
 
+`tasks.list_summaries()` uses `/api/tasks/list` for API keys and `/api/tasks` for authenticated workspace sessions. Task creation and updates use the supported Task endpoints; legacy AI selector/script generation endpoints have been removed from Figranium and are not part of this SDK.
+
 ## Create a typed task
 
 ```python
