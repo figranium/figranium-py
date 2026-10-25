@@ -62,6 +62,29 @@ async def _exercise_async_execution_routes() -> None:
     assert full == {"result": {"value": 42}}
 
 
+
+def test_async_task_summaries_choose_auth_route() -> None:
+    asyncio.run(_exercise_async_task_summaries())
+
+
+async def _exercise_async_task_summaries() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/api/tasks":
+            return httpx.Response(200, json=[{"id": 7, "name": "Session task"}], request=request)
+        return httpx.Response(200, json={"tasks": [{"id": "api", "name": "API task"}]}, request=request)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
+        session = AsyncFigranium(session=True, http_client=http_client)
+        assert await session.tasks.list_summaries() == {"tasks": [{"id": "7", "name": "Session task"}]}
+        api_key = AsyncFigranium(api_key="secret", http_client=http_client)
+        assert await api_key.tasks.list_summaries() == {"tasks": [{"id": "api", "name": "API task"}]}
+
+    assert [request.url.path for request in requests] == ["/api/tasks", "/api/tasks/list"]
+
+
 def test_async_cookie_states_session_csrf() -> None:
     asyncio.run(_exercise_async_cookie_states())
 

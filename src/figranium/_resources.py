@@ -53,6 +53,14 @@ class TasksResource(Resource):
         return self._http.request("GET", "/api/tasks", options=options)
 
     def list_summaries(self, *, options: Optional[RequestOptions] = None) -> Any:
+        """Return Task summaries through the endpoint supported by the auth mode."""
+        if self._http.session:
+            tasks = self._http.request("GET", "/api/tasks", options=options)
+            return {"tasks": [
+                {"id": str(task["id"]), "name": task.get("name") or str(task["id"]),
+                 **({"description": task["description"]} if task.get("description") else {})}
+                for task in tasks
+            ]}
         return self._http.request("GET", "/api/tasks/list", options=options)
 
     def save(
@@ -89,17 +97,6 @@ class TasksResource(Resource):
     def rollback(self, task_id: str, version_id: str, *, options: Optional[RequestOptions] = None) -> Any:
         return self._http.request(
             "POST", f"/api/tasks/{path_id(task_id)}/rollback", body={"versionId": version_id}, options=options
-        )
-
-    def generate_selector(
-        self, task: Mapping[str, Any], action_index: int, prompt: str, *, options: Optional[RequestOptions] = None
-    ) -> Any:
-        body = {"task": dict(task), "actionIndex": action_index, "prompt": prompt}
-        return self._http.request("POST", "/api/tasks/generate-selector", body=body, options=options)
-
-    def generate_script(self, description: str, *, options: Optional[RequestOptions] = None) -> Any:
-        return self._http.request(
-            "POST", "/api/tasks/generate-script", body={"description": description}, options=options
         )
 
     def run(
