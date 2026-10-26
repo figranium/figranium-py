@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added `tasks.delete_version(task_id, version_id)` for session-authenticated deletion of a saved Task version, with synchronous and asynchronous request tests.
+
 ## 0.3.0 - 2026-10-09
 
 - Removed authentication, credentials, settings, and interactive browser resources from synchronous and asynchronous SDK clients.
