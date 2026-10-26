@@ -322,3 +322,20 @@ def test_core_selector_variables_and_cabinet_counts() -> None:
     assert sent["actions"][0]["conditionVarType"] == "selector"
     cabinet: Cabinet = result["cabinets"][0]
     assert cabinet["unuploadedCount"] == 2
+
+
+def test_delete_task_version_matches_v021_session_endpoint() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return response(request, {"success": True, "versionId": "version/1"})
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        client = Figranium(session=True, http_client=http_client)
+        result = client.tasks.delete_version("task/1", "version/1")
+
+    assert result == {"success": True, "versionId": "version/1"}
+    assert requests[0].method == "DELETE"
+    assert requests[0].url.raw_path == b"/api/tasks/task%2F1/versions/version%2F1"
+    assert requests[0].headers.get("x-requested-with") == "XMLHttpRequest"
