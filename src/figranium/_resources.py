@@ -91,6 +91,14 @@ class TasksResource(Resource):
             "GET", f"/api/tasks/{path_id(task_id)}/versions/{path_id(version_id)}", options=options
         )
 
+    def delete_version(
+        self, task_id: str, version_id: str, *, options: Optional[RequestOptions] = None
+    ) -> Any:
+        """Delete a saved Task version (workspace-session authentication required)."""
+        return self._http.request(
+            "DELETE", f"/api/tasks/{path_id(task_id)}/versions/{path_id(version_id)}", options=options
+        )
+
     def clear_versions(self, task_id: str, *, options: Optional[RequestOptions] = None) -> Any:
         return self._http.request("POST", f"/api/tasks/{path_id(task_id)}/versions/clear", options=options)
 
