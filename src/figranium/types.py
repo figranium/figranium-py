@@ -9,7 +9,7 @@ UnknownRecord = Dict[str, Any]
 
 TaskMode = Literal["scrape", "agent", "headful"]
 TaskOutcome = Literal["success", "error", "stopped", "crashed", "anti_bot"]
-VariableType = Literal["string", "number", "boolean"]
+VariableType = Literal["string", "number", "boolean", "selector"]
 ExtractionFormat = Literal["json", "csv"]
 HttpMethod = Literal["GET", "POST", "PUT", "PATCH", "DELETE"]
 CaptchaType = Literal["recaptcha_v2", "recaptcha_v3", "hcaptcha", "turnstile"]
@@ -170,6 +170,7 @@ class Cabinet(TypedDict, total=False):
     name: str
     isDefault: bool
     itemCount: int
+    unuploadedCount: int
     createdAt: int
 
 
