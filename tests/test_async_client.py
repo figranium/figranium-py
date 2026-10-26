@@ -105,3 +105,24 @@ async def _exercise_async_cookie_states() -> None:
     assert requests[1].url.raw_path == b"/api/cookie-states/state%2F1"
     assert all(r.headers.get("x-requested-with") == "XMLHttpRequest" for r in requests)
     assert all("session=async" in r.headers.get("cookie", "") for r in requests)
+
+
+def test_async_delete_task_version_matches_v021_endpoint() -> None:
+    asyncio.run(_exercise_async_delete_task_version())
+
+
+async def _exercise_async_delete_task_version() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json={"success": True, "versionId": "version/2"}, request=request)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
+        client = AsyncFigranium(session=True, http_client=http_client)
+        result = await client.tasks.delete_version("task/2", "version/2")
+
+    assert result == {"success": True, "versionId": "version/2"}
+    assert requests[0].method == "DELETE"
+    assert requests[0].url.raw_path == b"/api/tasks/task%2F2/versions/version%2F2"
+    assert requests[0].headers.get("x-requested-with") == "XMLHttpRequest"
