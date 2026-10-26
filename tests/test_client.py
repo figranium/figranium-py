@@ -5,7 +5,7 @@ from typing import Dict, Optional
 import httpx
 import pytest
 
-from figranium import Figranium, FigraniumError, action, actions, variable
+from figranium import Cabinet, Figranium, FigraniumError, Task, action, actions, variable
 
 
 def response(
@@ -293,3 +293,32 @@ def test_session_csrf_respects_origin_and_api_key_mode() -> None:
     assert requests[0].headers["origin"] == "https://example.test"
     assert "x-requested-with" not in requests[0].headers
     assert "x-requested-with" not in requests[1].headers
+
+
+def test_core_selector_variables_and_cabinet_counts() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/api/cabinets":
+            return response(request, {
+                "defaultCabinetId": "cab_basic",
+                "cabinets": [{"id": "cab_basic", "name": "Basic", "itemCount": 3, "unuploadedCount": 2}],
+            })
+        return response(request, {"id": "task_selector"})
+
+    task: Task = {
+        "name": "Selector task", "url": "https://example.com", "mode": "agent",
+        "variables": {"target": {"type": "selector", "value": ".submit"}},
+        "actions": [{"type": "if", "conditionVar": "target", "conditionVarType": "selector", "conditionOp": "exists"}],
+    }
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        client = Figranium(api_key="secret", http_client=http_client)
+        client.tasks.save(task)
+        result = client.cabinets.list()
+
+    sent = json.loads(requests[0].content)
+    assert sent["variables"]["target"]["type"] == "selector"
+    assert sent["actions"][0]["conditionVarType"] == "selector"
+    cabinet: Cabinet = result["cabinets"][0]
+    assert cabinet["unuploadedCount"] == 2
