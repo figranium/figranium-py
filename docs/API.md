@@ -22,11 +22,14 @@ Classified execution outcomes (`success`, `error`, `stopped`, `crashed`, and `an
 - `tasks.delete(task_id)`
 - `tasks.versions(task_id)`
 - `tasks.version(task_id, version_id)`
+- `tasks.delete_version(task_id, version_id)` — requires an authenticated workspace session
 - `tasks.clear_versions(task_id)`
 - `tasks.rollback(task_id, version_id)`
-- `tasks.generate_selector(task, action_index, prompt)`
-- `tasks.generate_script(description)`
 - `tasks.run(task_id, input=None)`
+
+The retired AI-based `tasks.generate_selector()` and `tasks.generate_script()` methods are not exposed by the SDK; the corresponding core routes are absent in v0.20.0 and v0.21.x.
+
+For selector-based `if`/`while` conditions, use `conditionVarType: "selector"`, `selector: "{$target}"` (or a literal CSS selector), and `conditionOp: "exists"` or `"not_exists"`. Core evaluates `action.selector`; `conditionVar` alone is ignored for selector conditions and yields false when `selector` is missing.
 
 ## Executions
 

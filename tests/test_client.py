@@ -310,7 +310,7 @@ def test_core_selector_variables_and_cabinet_counts() -> None:
     task: Task = {
         "name": "Selector task", "url": "https://example.com", "mode": "agent",
         "variables": {"target": {"type": "selector", "value": ".submit"}},
-        "actions": [{"type": "if", "conditionVar": "target", "conditionVarType": "selector", "conditionOp": "exists"}],
+        "actions": [{"type": "if", "selector": "{$target}", "conditionVarType": "selector", "conditionOp": "exists"}],
     }
     with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
         client = Figranium(api_key="secret", http_client=http_client)
@@ -319,7 +319,7 @@ def test_core_selector_variables_and_cabinet_counts() -> None:
 
     sent = json.loads(requests[0].content)
     assert sent["variables"]["target"]["type"] == "selector"
-    assert sent["actions"][0]["conditionVarType"] == "selector"
+    assert sent["actions"][0] == {"type": "if", "selector": "{$target}", "conditionVarType": "selector", "conditionOp": "exists"}
     cabinet: Cabinet = result["cabinets"][0]
     assert cabinet["unuploadedCount"] == 2
 
