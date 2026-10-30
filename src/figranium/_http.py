@@ -64,6 +64,17 @@ def _parse_event(lines: list[str]) -> Optional[StreamEvent]:
     return event
 
 
+def _reject_redirect(response: httpx.Response) -> None:
+    """Never forward API keys or session cookies to an HTTP redirect target."""
+    if 300 <= response.status_code < 400:
+        raise FigraniumError(
+            "Refusing HTTP redirect for a Figranium request",
+            status=response.status_code,
+            code="REDIRECT_NOT_ALLOWED",
+            response=response,
+        )
+
+
 def _request_parts(options: Optional[RequestOptions]) -> tuple[Optional[Mapping[str, str]], Any]:
     value = options or {}
     return value.get("headers"), value.get("timeout")
@@ -127,12 +138,14 @@ class HttpClient:
                 _url(self.base_url, path, query),
                 headers=_session_headers(method, self.client.headers, headers, self.session),
                 timeout=self.timeout if timeout is None else timeout,
+                follow_redirects=False,
                 **({"json": body} if body is not None else {}),
             )
         except httpx.TimeoutException as error:
             raise FigraniumError("Figranium request was aborted", code="REQUEST_ABORTED", cause=error) from error
         except httpx.HTTPError as error:
             raise FigraniumError("Unable to reach the Figranium server", code="NETWORK_ERROR", cause=error) from error
+        _reject_redirect(response)
         if not response.is_success:
             raise FigraniumError.from_response(response)
         if response.status_code == 204 or not response.content:
@@ -151,7 +164,9 @@ class HttpClient:
                 _url(self.base_url, path),
                 headers=stream_headers,
                 timeout=None if timeout is None else timeout,
+                follow_redirects=False,
             ) as response:
+                _reject_redirect(response)
                 if not response.is_success:
                     response.read()
                     raise FigraniumError.from_response(response)
@@ -223,12 +238,14 @@ class AsyncHttpClient:
                 _url(self.base_url, path, query),
                 headers=_session_headers(method, self.client.headers, headers, self.session),
                 timeout=self.timeout if timeout is None else timeout,
+                follow_redirects=False,
                 **({"json": body} if body is not None else {}),
             )
         except httpx.TimeoutException as error:
             raise FigraniumError("Figranium request was aborted", code="REQUEST_ABORTED", cause=error) from error
         except httpx.HTTPError as error:
             raise FigraniumError("Unable to reach the Figranium server", code="NETWORK_ERROR", cause=error) from error
+        _reject_redirect(response)
         if not response.is_success:
             raise FigraniumError.from_response(response)
         if response.status_code == 204 or not response.content:
@@ -247,7 +264,9 @@ class AsyncHttpClient:
                 _url(self.base_url, path),
                 headers=stream_headers,
                 timeout=None if timeout is None else timeout,
+                follow_redirects=False,
             ) as response:
+                _reject_redirect(response)
                 if not response.is_success:
                     await response.aread()
                     raise FigraniumError.from_response(response)

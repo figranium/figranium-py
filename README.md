@@ -22,6 +22,8 @@
 pip install figranium-sdk
 ```
 
+Authenticated HTTP requests and SSE streams always reject redirects, even when a caller supplies an `httpx.Client` or `httpx.AsyncClient` configured with `follow_redirects=True`. This prevents custom `x-api-key` headers and session cookies from being forwarded to another origin. Configure the final Figranium server URL directly; 3xx responses raise `FigraniumError` with code `REDIRECT_NOT_ALLOWED`.
+
 ## Quick start
 
 ```python
