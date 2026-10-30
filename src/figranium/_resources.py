@@ -3,7 +3,7 @@
 from typing import Any, Dict, Iterator, Mapping, Optional, Sequence, Union
 
 from ._http import HttpClient, path_id
-from .types import AiModels, AiProvider, CabinetItemStatus, RequestOptions, Schedule, StreamEvent, Theme
+from .types import AiModels, AiProvider, ApiKeyPermission, CabinetItemStatus, RequestOptions, Schedule, StreamEvent, Theme
 
 
 def _defined(**values: Any) -> Dict[str, Any]:
@@ -14,6 +14,42 @@ class Resource:
     def __init__(self, http: HttpClient) -> None:
         self._http = http
 
+
+
+class ApiKeysResource(Resource):
+    """Manage scoped API keys with an authenticated workspace session."""
+
+    def _require_session(self) -> None:
+        if not self._http.session:
+            raise ValueError("API key administration requires a workspace session")
+
+    def list(self, *, options: Optional[RequestOptions] = None) -> Any:
+        self._require_session()
+        return self._http.request("GET", "/api/api-keys", options=options)
+
+    def create(
+        self,
+        permissions: Sequence[ApiKeyPermission],
+        *,
+        name: Optional[str] = None,
+        task_ids: Optional[Sequence[str]] = None,
+        options: Optional[RequestOptions] = None,
+    ) -> Any:
+        self._require_session()
+        body: Dict[str, Any] = {"permissions": list(permissions)}
+        if name is not None:
+            body["name"] = name
+        if task_ids is not None:
+            body["taskIds"] = list(task_ids)
+        return self._http.request("POST", "/api/api-keys", body=body, options=options)
+
+    def rename(self, key_id: str, name: str, *, options: Optional[RequestOptions] = None) -> Any:
+        self._require_session()
+        return self._http.request("PATCH", f"/api/api-keys/{path_id(key_id)}", body={"name": name}, options=options)
+
+    def revoke(self, key_id: str, *, options: Optional[RequestOptions] = None) -> Any:
+        self._require_session()
+        return self._http.request("DELETE", f"/api/api-keys/{path_id(key_id)}", options=options)
 
 
 class CookieStatesResource(Resource):

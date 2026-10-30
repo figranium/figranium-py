@@ -82,7 +82,16 @@ For selector-based `if`/`while` conditions, use `conditionVarType: "selector"`, 
 
 Use `Figranium(session=True, http_client=...)` with an authenticated `httpx.Client` containing the workspace session cookie, or `AsyncFigranium` with an authenticated `httpx.AsyncClient`. The SDK does not log in or obtain a session cookie. It adds the server's CSRF hint to session-authenticated mutations without an explicit Origin/Referer.
 
-Scoped API keys are intended for permitted automation operations; they cannot administer named cookie states, 1Password credentials, connections, Baserow credentials, import/export, or Cloud authentication. Manage those in the workspace UI.
+Scoped API keys are intended for permitted automation operations; they cannot administer other keys, named cookie states, 1Password credentials, connections, Baserow credentials, import/export, or Cloud authentication. Manage the latter resources in the workspace UI.
+
+## Scoped API keys (workspace session only)
+
+- `api_keys.list()` — returns `keys`, `permissions`, and possibly a sensitive legacy `legacySecret`
+- `api_keys.create(permissions, name=None, task_ids=None)` — returns `key` and a one-time plaintext `secret`
+- `api_keys.rename(key_id, name)`
+- `api_keys.revoke(key_id)`
+
+Permissions: `tasks:read`, `tasks:run`, `tasks:manage`. An omitted or empty `task_ids` allowlist permits all Tasks. These methods reject API-key authentication locally, require `session=True` with an authenticated workspace cookie, and use the normal CSRF hint on mutations. Both sync and async clients expose them.
 
 ## Health
 

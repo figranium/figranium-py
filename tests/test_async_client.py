@@ -126,3 +126,36 @@ async def _exercise_async_delete_task_version() -> None:
     assert requests[0].method == "DELETE"
     assert requests[0].url.raw_path == b"/api/tasks/task%2F2/versions/version%2F2"
     assert requests[0].headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def test_async_v021_scoped_api_keys_session_only() -> None:
+    asyncio.run(_exercise_async_v021_scoped_api_keys())
+
+
+async def _exercise_async_v021_scoped_api_keys() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.method == "POST":
+            return httpx.Response(201, json={"key": {"id": "key-1"}, "secret": "once"}, request=request)
+        return httpx.Response(200, json={"ok": True}, request=request)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler), cookies={"session": "async"}) as http_client:
+        client = AsyncFigranium(session=True, http_client=http_client)
+        created = await client.api_keys.create(["tasks:read"], task_ids=[])
+        assert created["secret"] == "once"
+        assert await client.api_keys.revoke("key/1") == {"ok": True}
+        assert json.loads(requests[0].content) == {"permissions": ["tasks:read"], "taskIds": []}
+        assert requests[1].url.raw_path == b"/api/api-keys/key%2F1"
+        assert all(r.headers.get("x-requested-with") == "XMLHttpRequest" for r in requests)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
+        client = AsyncFigranium(api_key="secret", http_client=http_client)
+        try:
+            await client.api_keys.create(["tasks:run"])
+        except ValueError as error:
+            assert "workspace session" in str(error)
+        else:
+            raise AssertionError("API-key authentication must not administer API keys")
+    assert len(requests) == 2

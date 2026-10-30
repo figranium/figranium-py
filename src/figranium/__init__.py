@@ -1,6 +1,7 @@
 """Official Python SDK for Figranium."""
 
 from ._async_resources import (
+    AsyncApiKeysResource,
     AsyncCabinetsResource,
     AsyncCapturesResource,
     AsyncExecutionResource,
@@ -10,6 +11,7 @@ from ._async_resources import (
     AsyncTasksResource,
 )
 from ._resources import (
+    ApiKeysResource,
     CabinetsResource,
     CapturesResource,
     ExecutionResource,
@@ -26,6 +28,10 @@ from .types import (
     Action,
     AiModels,
     AiProvider,
+    ApiKeyPermission,
+    ApiKeyListResponse,
+    ApiKeyCreateResponse,
+    ScopedApiKey,
     BrowserSession,
     Cabinet,
     CabinetItem,
@@ -65,6 +71,12 @@ __all__ = [
     "Actions",
     "AiModels",
     "AiProvider",
+    "ApiKeyPermission",
+    "ApiKeyListResponse",
+    "ApiKeyCreateResponse",
+    "ScopedApiKey",
+    "ApiKeysResource",
+    "AsyncApiKeysResource",
     "AsyncCabinetsResource",
     "AsyncCapturesResource",
     "AsyncExecutionResource",
