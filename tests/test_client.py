@@ -339,3 +339,51 @@ def test_delete_task_version_matches_v021_session_endpoint() -> None:
     assert requests[0].method == "DELETE"
     assert requests[0].url.raw_path == b"/api/tasks/task%2F1/versions/version%2F1"
     assert requests[0].headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def test_v021_scoped_api_key_administration_requires_session() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.method == "GET":
+            return response(request, {"keys": [], "legacySecret": None, "permissions": ["tasks:read", "tasks:run", "tasks:manage"]})
+        if request.method == "POST":
+            return response(request, {"key": {"id": "key/a", "permissions": ["tasks:run"], "taskIds": ["task-1"]}, "secret": "one-time-secret"}, status=201)
+        if request.method == "PATCH":
+            return response(request, {"key": {"id": "key/a", "name": "Updated"}})
+        return response(request, {"ok": True})
+
+    with httpx.Client(transport=httpx.MockTransport(handler), cookies={"session": "authenticated"}) as http_client:
+        client = Figranium(session=True, http_client=http_client)
+        assert client.api_keys.list()["permissions"] == ["tasks:read", "tasks:run", "tasks:manage"]
+        created = client.api_keys.create(["tasks:run"], name="Runner", task_ids=["task-1"])
+        assert created["secret"] == "one-time-secret"
+        assert client.api_keys.rename("key/a", "Updated")["key"]["name"] == "Updated"
+        assert client.api_keys.revoke("key/a") == {"ok": True}
+
+    assert [(r.method, r.url.raw_path) for r in requests] == [
+        ("GET", b"/api/api-keys"),
+        ("POST", b"/api/api-keys"),
+        ("PATCH", b"/api/api-keys/key%2Fa"),
+        ("DELETE", b"/api/api-keys/key%2Fa"),
+    ]
+    assert json.loads(requests[1].content) == {
+        "name": "Runner", "permissions": ["tasks:run"], "taskIds": ["task-1"],
+    }
+    assert json.loads(requests[2].content) == {"name": "Updated"}
+    assert all("session=authenticated" in r.headers.get("cookie", "") for r in requests)
+    assert "x-requested-with" not in requests[0].headers
+    assert all(r.headers.get("x-requested-with") == "XMLHttpRequest" for r in requests[1:])
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        api_client = Figranium(api_key="secret", http_client=http_client)
+        with pytest.raises(ValueError, match="workspace session"):
+            api_client.api_keys.list()
+        with pytest.raises(ValueError, match="workspace session"):
+            api_client.api_keys.create(["tasks:manage"])
+        with pytest.raises(ValueError, match="workspace session"):
+            api_client.api_keys.rename("key", "Updated")
+        with pytest.raises(ValueError, match="workspace session"):
+            api_client.api_keys.revoke("key")
+    assert len(requests) == 4

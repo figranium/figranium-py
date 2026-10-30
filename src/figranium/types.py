@@ -7,6 +7,26 @@ JsonValue = Union[JsonPrimitive, List["JsonValue"], Dict[str, "JsonValue"]]
 JsonObject = Dict[str, JsonValue]
 UnknownRecord = Dict[str, Any]
 
+ApiKeyPermission = Literal["tasks:read", "tasks:run", "tasks:manage"]
+
+class ScopedApiKey(TypedDict, total=False):
+    id: str
+    name: str
+    permissions: List[ApiKeyPermission]
+    taskIds: List[str]
+    createdAt: str
+    legacy: bool
+
+class ApiKeyListResponse(TypedDict):
+    keys: List[ScopedApiKey]
+    legacySecret: Optional[str]
+    permissions: List[ApiKeyPermission]
+
+class ApiKeyCreateResponse(TypedDict):
+    key: ScopedApiKey
+    secret: str
+
+
 TaskMode = Literal["scrape", "agent", "headful"]
 TaskOutcome = Literal["success", "error", "stopped", "crashed", "anti_bot"]
 VariableType = Literal["string", "number", "boolean", "selector"]

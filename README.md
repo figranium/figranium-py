@@ -160,7 +160,20 @@ with httpx.Client(cookies={"<cookie-name>": "<workspace-session-cookie>"}) as ht
 
 The SDK does not perform interactive login or obtain session cookies. For session mutations, it supplies the CSRF hint unless Origin or Referer is explicitly set. The async client exposes the same `cookie_states` methods.
 
-Managing API keys, 1Password credentials, connections, Baserow credential administration, settings, imports/exports, and Cloud sign-in still belongs in the Figranium workspace UI.
+Scoped API key administration is available only with a workspace session, using the same authenticated client. API keys cannot create, rename, list, or revoke other keys:
+
+```python
+with Figranium(session=True, http_client=http_client) as client:
+    keys = client.api_keys.list()
+    created = client.api_keys.create(["tasks:run"], name="Runner", task_ids=["task-1"])
+    print(created["secret"])  # Shown once; store it securely.
+    client.api_keys.rename(created["key"]["id"], "Production runner")
+    client.api_keys.revoke(created["key"]["id"])
+```
+
+Valid permissions are `tasks:read`, `tasks:run`, and `tasks:manage`. An omitted or empty `task_ids` allowlist means **all Tasks**, not zero Tasks. `list()` may also return a legacy plaintext `legacySecret`; treat it as sensitive. The async client exposes the same `api_keys` methods.
+
+1Password credentials, connections, Baserow credential administration, settings, imports/exports, and Cloud sign-in still belong in the Figranium workspace UI.
 
 ## Custom HTTP clients
 
